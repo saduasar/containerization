@@ -1,73 +1,82 @@
 version: '3.8'
 
+# Define the services for your application
 services:
+
+  # PostgreSQL service
   postgresDB:
     container_name: postgresDB
     image: postgres:15.1-alpine
     ports:
-      - "5432:5432"
+      - "5432:5432" # Map host port 5432 to container port 5432
     environment:
-      - POSTGRES_PASSWORD=mysecretpassword
-      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=mysecretpassword # Set PostgreSQL password
+      - PGDATA=/var/lib/postgresql/data/pgdata # Set PostgreSQL data directory
     volumes:
-      - pgs-volume:/var/lib/postgresql/data
-    restart: unless-stopped
+      - pgs-volume:/var/lib/postgresql/data # Mount volume for persistent data storage
+    restart: unless-stopped # Restart policy: always restart unless explicitly stopped
     networks:
-      - my_network
+      - my_network # Connect to the custom network my_network
 
+  # Node.js API service
   api-node:
     container_name: api-node
     build:
-      context: ./api-node
-    image: api-node:v1
+      context: ./api-node # Build context
+    image: api-node:v1 # Name of the built image
     ports: 
-      - "3000:3000"
+      - "3000:3000" # Map host port 3000 to container port 3000
     depends_on:
-      - postgresDB
+      - postgresDB # Ensure that this service depends on postgresDB being available
     environment:
-      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
-    restart: unless-stopped
+      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres # Set the database URL
+    restart: unless-stopped # Restart policy: always restart unless explicitly stopped
     networks:
-      - my_network
+      - my_network # Connect to the custom network my_network
 
+  # Golang API service
   api-golang:
     container_name: api-golang
     build:
-      context: ./api-golang
-    image: api-golang:v1
+      context: ./api-golang # Build context
+    image: api-golang:v1 # Name of the built image
     ports: 
-      - "8080:8080"
+      - "8080:8080" # Map host port 8080 to container port 8080
     depends_on:
-      - postgresDB
+      - postgresDB # Ensure that this service depends on postgresDB being available
     environment:
-      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
-    restart: unless-stopped
+      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres # Set the database URL
+    restart: unless-stopped # Restart policy: always restart unless explicitly stopped
     networks:
-      - my_network
+      - my_network # Connect to the custom network my_network
 
+  # React client service
   client-react:
     container_name: client-react
     build:
-      context: ./client-react
-    image: client-react:v1
+      context: ./client-react # Build context
+    image: client-react:v1 # Name of the built image
     ports: 
-      - "80:8080"
+      - "80:8080" # Map host port 80 to container port 8080
     depends_on:
-      - postgresDB
+      - postgresDB # Ensure that this service depends on postgresDB being available
     environment:
-      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
-    restart: unless-stopped
+      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres # Set the database URL
+    restart: unless-stopped # Restart policy: always restart unless explicitly stopped
     volumes:
       - type: bind
         source: ${PWD}/client-react/vite.config.js
-        target: /usr/src/app/vite.config.js
+        target: /usr/src/app/vite.config.js # Mount volume for configuration file
     networks:
-      - my_network
+      - my_network # Connect to the custom network my_network
 
+# Define a custom network for the services to communicate
 networks:
   my_network:
-    driver: bridge
+    driver: bridge # Use the bridge network driver
 
+# Define volumes for persistent data storage
 volumes:
   pgs-volume:
-    driver: local
+    driver: local # Use the local volume driver
+
