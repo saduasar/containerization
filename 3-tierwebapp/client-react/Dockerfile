@@ -22,7 +22,7 @@ COPY . .
 # Run the build process (e.g., npm run build)
 RUN npm run build
 
-# Start a new stage using the nginx-unprivileged image for the deployable image
+# Start a new stage using the nginx-unprivileged image for the deployable image. Also this particular images allows us to execute commnads as nonroot. This is good for security.
 FROM nginxinc/nginx-unprivileged:1.23-alpine-perl
 
 # Copy the nginx configuration file
