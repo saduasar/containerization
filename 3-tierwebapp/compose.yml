@@ -23,7 +23,7 @@ services:
     container_name: api-node
     build:
       context: ./api-node # Build context
-    image: api-node:v1 # Name of the built image
+    image: saduasar/api-node:v1 # Name of the built image
     ports: 
       - "3000:3000" # Map host port 3000 to container port 3000
     depends_on:
@@ -39,7 +39,7 @@ services:
     container_name: api-golang
     build:
       context: ./api-golang # Build context
-    image: api-golang:v1 # Name of the built image
+    image: saduasar/api-golang:v1 # Name of the built image
     ports: 
       - "8080:8080" # Map host port 8080 to container port 8080
     depends_on:
@@ -55,7 +55,7 @@ services:
     container_name: client-react
     build:
       context: ./client-react # Build context
-    image: client-react:v1 # Name of the built image
+    image: saduasar/client-react:v1 # Name of the built image
     ports: 
       - "80:8080" # Map host port 80 to container port 8080
     depends_on:
