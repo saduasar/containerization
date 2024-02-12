@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgresDB:
+    container_name: postgresDB
+    image: postgres:15.1-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - pgs-volume:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - my_network
+
+  api-node:
+    container_name: api-node
+    image: apinode:v1.0
+    ports: 
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
+    restart: unless-stopped
+    networks:
+      - my_network
+
+  api-golang:
+    container_name: api-golang
+    image: apigolang:v1.0
+    ports: 
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
+    restart: unless-stopped
+    networks:
+      - my_network
+
+  client-react:
+    container_name: client-react
+    image: client-react:v1.0
+    ports: 
+      - "80:8080"
+    environment:
+      - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: ${PWD}/client-react/vite.config.js
+        target: /usr/src/app/vite.config.js
+    networks:
+      - my_network
+
+
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  pgs-volume:
+    driver: local
+
