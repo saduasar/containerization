@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  # Api-node configuration
+  api-node:
+    # Define build context and Dockerfile for api-node
+    build:
+      context: ./api-node   # Path to api-node directory
+      dockerfile: Dockerfile       # Dockerfile for service 1
+    # Define image name and tag for apinode
+    image: apinode:v1.0  # Name and tag for apinode image
+
+  # Api-golang configuration
+  api-golang:
+    # Define build context and Dockerfile for api-golang
+    build:
+      context: ./api-golang   # Path to api-golang directory
+      dockerfile: Dockerfile       # Dockerfile for api-golang
+    # Define image name and tag for api-golanf
+    image: apigolang:v1.0  # Name and tag for service 2 image
+
+  # React-client configuration
+  react-client:
+    # Define build context and Dockerfile for react-client
+    build:
+      context: ./client-react   # Path to client-react directory
+      dockerfile: Dockerfile       # Dockerfile for client-react
+    # Define image name and tag for client-react
+    image: client-react:v1.0  # Name and tag for service 2 image
+
