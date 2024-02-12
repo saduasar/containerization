@@ -1,58 +1,60 @@
-# Pin specific version for stability
-# Use separate stage for building image
-# Use debian for easier build utilities
+# Start with the official Golang image as the build stage
 FROM golang:1.19-bullseye AS build
 
-# Add non root user
+# Add a non-root user to enhance security
 RUN useradd -u 1001 nonroot
 
-WORKDIR /app 
+# Set the working directory
+WORKDIR /app
 
-# Copy only files required to install dependencies (better layer caching)
+# Copy only necessary files for dependency installation to improve caching
 COPY go.mod go.sum ./
 
-# Use cache mount to speed up install of existing dependencies
+# Speed up dependency installation using cache mounts
 RUN --mount=type=cache,target=/go/pkg/mod \
-  --mount=type=cache,target=/root/.cache/go-build \
-  go mod download
+    --mount=type=cache,target=/root/.cache/go-build \
+    go mod download
 
+# Copy the application source code
 COPY . .
 
-# Compile healthcheck
+# Compile the healthcheck binary
 RUN go build \
-  -ldflags="-linkmode external -extldflags -static" \
-  -tags netgo \
-  -o healthcheck \
-  ./healthcheck/healthcheck.go
+    -ldflags="-linkmode external -extldflags -static" \
+    -tags netgo \
+    -o healthcheck \
+    ./healthcheck/healthcheck.go
 
-# Compile application during build rather than at runtime
-# Add flags to statically link binary
+# Compile the main application binary with static linking
 RUN go build \
-  -ldflags="-linkmode external -extldflags -static" \
-  -tags netgo \
-  -o api-golang
+    -ldflags="-linkmode external -extldflags -static" \
+    -tags netgo \
+    -o api-golang
 
-# Use separate stage for deployable image
+# Start a new stage using the 'scratch' image for the deployable image
 FROM scratch
 
-# Set gin mode
+# Set the Gin mode environment variable to 'release'
 ENV GIN_MODE=release
 
+# Set the working directory
 WORKDIR /
 
-# Copy the passwd file
+# Copy the /etc/passwd file from the build stage to enable non-root user usage
 COPY --from=build /etc/passwd /etc/passwd
 
 # Copy the healthcheck binary from the build stage
 COPY --from=build /app/healthcheck/healthcheck healthcheck
 
-# Copy the app binary from the build stage
+# Copy the main application binary from the build stage
 COPY --from=build /app/api-golang api-golang
 
-# Use nonroot user
+# Switch to the non-root user for enhanced security
 USER nonroot
 
-# Indicate expected port
+# Expose port 8080 for the application
 EXPOSE 8080
 
+# Define the command to run the application
 CMD ["/api-golang"]
+
