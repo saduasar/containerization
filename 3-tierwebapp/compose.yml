@@ -22,6 +22,8 @@ services:
     image: api-node:v1
     ports: 
       - "3000:3000"
+    depends_on:
+      - postgresDB
     environment:
       - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
     restart: unless-stopped
@@ -35,6 +37,8 @@ services:
     image: api-golang:v1
     ports: 
       - "8080:8080"
+    depends_on:
+      - postgresDB
     environment:
       - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
     restart: unless-stopped
@@ -48,6 +52,8 @@ services:
     image: client-react:v1
     ports: 
       - "80:8080"
+    depends_on:
+      - postgresDB
     environment:
       - DATABASE_URL=postgres://postgres:mysecretpassword@postgresDB:5432/postgres
     restart: unless-stopped
@@ -65,4 +71,3 @@ networks:
 volumes:
   pgs-volume:
     driver: local
-
