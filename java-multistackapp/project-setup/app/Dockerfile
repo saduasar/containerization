@@ -1,10 +1,8 @@
 # Stage 1: Build stage using Maven
-FROM ubuntu:22.04 AS build
-
-RUN apt-get update && apt-get install maven -y
+FROM maven:3.9.6-eclipse-temurin-11-alpine AS build
 
 # Set the working directory
-WORKDIR ~/
+WORKDIR /build
 
 # Copy the entire content of the current directory into the Docker image
 COPY . .
@@ -19,8 +17,7 @@ FROM tomcat:9.0.75-jdk8-corretto
 RUN rm -rf /usr/local/tomcat/webapps/ROOT*
 
 # Copy the WAR file from the previous build stage into the Tomcat webapps directory, renaming it to ROOT.war
-COPY --from=build ./target/vprofile-v2.war /usr/local/tomcat/webapps/ROOT.war
+COPY --from=build /build/target/vprofile-v2.war /usr/local/tomcat/webapps/ROOT.war
 
 # Set the default command to run Tomcat using catalina.sh
 CMD ["catalina.sh", "run"]
-
