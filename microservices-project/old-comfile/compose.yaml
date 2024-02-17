@@ -1,0 +1,74 @@
+version: '3.8'  # Specify the version of Docker Compose syntax being used
+
+services:  # Define the services that compose the application
+
+  # Service for the MySQL database
+  api:
+    image: saduasar/emartapp-emartapi:v1  # Use a specific Docker image for the database
+    build:
+      context: ./nodeapi/  # Build the image using Dockerfile in the specified context
+    ports:
+      - "5000:5000"  # Map host port 3306 to container port 3306 for MySQL connections
+    depends_on:
+      - emongo
+      - web
+    #volumes:
+     # - vprodbdata:/var/lib/mysql  # Mount a volume to persist MySQL data
+    #environment:
+     # - MYSQL_ROOT_PASSWORD=vprodbpass  # Set environment variable for MySQL root password
+
+  emongo:
+    image: mongo:4
+    ports:
+      -  "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=epoc
+
+  # Service for Memcached
+  emartdb:
+    image: mysql  # Use the official Memcached Docker image
+    ports:
+      - "3306:3306"  # Map host port 11211 to container port 11211 for Memcached connections
+    environment:
+      - MYSQL_ROOT_PASSWORD=emartdbpass
+      - MYSQL_DATABASE=books
+    volumes:
+      - vprodbdata:/var/lib/mysql 
+
+  # Service for RabbitMQ
+  webapi:
+    image: saduasar/emartapp-javaapi:v1  # Use the official RabbitMQ Docker image
+    build:
+      context: ./javaapi/
+    ports:
+      - "9000:9000"  # Map host port 15672 to container port 15672 for RabbitMQ management UI
+    #environment:
+     # - RABBITMQ_DEFAULT_USER=guest  # Set default username for RabbitMQ management
+     # - RABBITMQ_DEFAULT_PASS=guest  # Set default password for RabbitMQ management
+    depends_on:
+      - emartdb
+
+  # Service for the application
+  client:
+    image: saduasar/emartapp-client:v1  # Use a specific Docker image for the application
+    build:
+      context: ./client  # Build the image using Dockerfile in the specified context
+    ports:
+      - "4200:4200"  # Map host port 8080 to container port 8080 for accessing the application
+        # volumes: 
+        # - vproappdata:/usr/local/tomcat/webapps  # Mount a volume for application data
+    depends_on:
+      - api
+      - webapi
+  # Service for the web server
+  web:
+    image: saduasar/vprofileweb:latest  # Use a specific Docker image for the web server
+    build:
+      context: ./nginx/  # Build the image using Dockerfile in the specified context
+    ports:
+      - "80:80"  # Map host port 80 to container port 80 for accessing the web server
+
+volumes:
+  vprodbdata: {}  # Define a named volume for MySQL data
+#  vproappdata: {}  # Define a named volume for application data
+
