@@ -1,5 +1,10 @@
 # Stage 1: Build stage using Maven
-FROM maven:3.9.6-eclipse-temurin-11-alpine AS build
+FROM openjdk:11 AS build
+
+
+RUN apt update && apt install maven -y
+RUN git clone https://github.com/devopshydclub/vprofile-project.git
+RUN cd vprofile-project && git checkout docker && mvn install
 
 # Set the working directory inside the container for the build stage
 WORKDIR /build
@@ -11,7 +16,7 @@ COPY . .
 RUN mvn clean install
 
 # Stage 2: Deployment stage using Tomcat
-FROM tomcat:9.0.75-jdk8-corretto
+FROM tomcat:9-jre11
 
 # Remove any existing files related to the default ROOT application in Tomcat's webapps directory
 RUN rm -rf /usr/local/tomcat/webapps/ROOT*

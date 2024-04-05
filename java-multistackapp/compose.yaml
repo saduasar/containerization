@@ -26,8 +26,8 @@ services:  # Define the services that compose the application
     ports:
       - "15672:15672"  # Map host port 15672 to container port 15672 for RabbitMQ management UI
     environment:
-      - RABBITMQ_DEFAULT_USER=guest  # Set default username for RabbitMQ management
-      - RABBITMQ_DEFAULT_PASS=guest  # Set default password for RabbitMQ management
+      - RABBITMQ_DEFAULT_USER=test  # Set default username for RabbitMQ management
+      - RABBITMQ_DEFAULT_PASS=test  # Set default password for RabbitMQ management
 
   # Service for the application
   vproapp:
