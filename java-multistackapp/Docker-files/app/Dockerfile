@@ -3,8 +3,6 @@ FROM openjdk:11 AS build
 
 
 RUN apt update && apt install maven -y
-RUN git clone https://github.com/devopshydclub/vprofile-project.git
-RUN cd vprofile-project && git checkout docker && mvn install
 
 # Set the working directory inside the container for the build stage
 WORKDIR /build
